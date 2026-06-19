@@ -1,0 +1,546 @@
+[
+    {
+        "id": "f1demo01midi2knx",
+        "type": "tab",
+        "label": "Demo MIDI → KNX",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "e8e18da283ed4928",
+        "type": "tab",
+        "label": "Demo MIDI → KNX",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "c525a8034818b797",
+        "type": "hue-config",
+        "host": "192.168.1.36",
+        "name": "Hue Bridge",
+        "bridgeid": ""
+    },
+    {
+        "id": "midiInXtouch01",
+        "type": "midi in",
+        "z": "f1demo01midi2knx",
+        "name": "X-Touch Compact",
+        "midiport": "2",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "fnScaleDim01"
+            ]
+        ]
+    },
+    {
+        "id": "fnScaleDim01",
+        "type": "function",
+        "z": "f1demo01midi2knx",
+        "name": "Fader CC → 0–100%",
+        "func": "// === CONFIG ===\n// Numero di Control Change inviato dal fader della X-Touch che vuoi usare.\n// Muovi il fader e guarda il debug \"MIDI raw\": msg.payload[0] è il CC.\n// Imposta qui il valore e fai redeploy.\nconst FADER_CC = 4;          // <-- cambia con il CC del tuo fader\n// ==============\n\n// Reagisci solo ai messaggi Control Change\nif (!msg.midi || msg.midi.type !== \"controlchange\") {\n    return null;\n}\n\nconst cc    = msg.payload[0];   // numero del controller (CC)\nconst value = msg.payload[1];   // valore 0..127\n\n// Ignora gli altri fader/encoder\nif (cc !== FADER_CC) {\n    return null;\n}\n\n// Scala MIDI 0..127  ->  KNX scaling 0..100 % (DPT 5.001)\nconst percent = Math.round((value / 127) * 100);\n\nnode.status({ fill: \"green\", shape: \"dot\", text: percent + \" %\" });\n\n\nmsg.payload=percent;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 100,
+        "wires": [
+            [
+                "784bf7a65d95a40d"
+            ]
+        ]
+    },
+    {
+        "id": "619bc0ea2466b37d",
+        "type": "DebouncerUltimate",
+        "z": "f1demo01midi2knx",
+        "name": "",
+        "wait": 500,
+        "emitOn": "trailing",
+        "controlTopic": "debouncer",
+        "x": 350,
+        "y": 160,
+        "wires": [
+            [
+                "dacd0cbad95e8d8e"
+            ]
+        ]
+    },
+    {
+        "id": "784bf7a65d95a40d",
+        "type": "MinMaxLimiterUltimate",
+        "z": "f1demo01midi2knx",
+        "name": "",
+        "controlTopic": "clamp",
+        "payloadPropName": "payload",
+        "translatorConfig": "",
+        "min": 10,
+        "max": "100",
+        "passInvalid": false,
+        "x": 160,
+        "y": 160,
+        "wires": [
+            [
+                "619bc0ea2466b37d"
+            ]
+        ]
+    },
+    {
+        "id": "10f66f1c924119e6",
+        "type": "knxUltimateHueLight",
+        "z": "f1demo01midi2knx",
+        "server": "",
+        "serverHue": "c525a8034818b797",
+        "name": "Light: Sala Tecnica Demo (Device:table_shade)",
+        "nameLightSwitch": "",
+        "GALightSwitch": "",
+        "dptLightSwitch": "",
+        "nameLightState": "",
+        "GALightState": "",
+        "dptLightState": "",
+        "nameLightDIM": "",
+        "GALightDIM": "",
+        "dptLightDIM": "",
+        "nameLightColor": "",
+        "GALightColor": "",
+        "dptLightColor": "",
+        "nameLightColorState": "",
+        "GALightColorState": "",
+        "dptLightColorState": "",
+        "nameLightHSV_H_DIM": "",
+        "GALightHSV_H_DIM": "",
+        "dptLightHSV_H_DIM": "",
+        "nameLightHSV_H_State": "",
+        "GALightHSV_H_State": "",
+        "dptLightHSV_H_State": "",
+        "nameLightHSV_S_DIM": "",
+        "GALightHSV_S_DIM": "",
+        "dptLightHSV_S_DIM": "",
+        "nameLightHSV_S_State": "",
+        "GALightHSV_S_State": "",
+        "dptLightHSV_S_State": "",
+        "nameLightKelvinDIM": "",
+        "GALightKelvinDIM": "",
+        "dptLightKelvinDIM": "",
+        "nameLightKelvinPercentage": "",
+        "GALightKelvinPercentage": "",
+        "dptLightKelvinPercentage": "",
+        "nameLightKelvinPercentageState": "",
+        "GALightKelvinPercentageState": "",
+        "dptLightKelvinPercentageState": "",
+        "nameLightKelvin": "",
+        "GALightKelvin": "",
+        "dptLightKelvin": "",
+        "nameLightKelvinState": "",
+        "GALightKelvinState": "",
+        "dptLightKelvinState": "",
+        "nameLightBrightness": "",
+        "GALightBrightness": "",
+        "dptLightBrightness": "",
+        "nameLightBrightnessState": "",
+        "GALightBrightnessState": "",
+        "dptLightBrightnessState": "",
+        "nameLightBlink": "",
+        "GALightBlink": "",
+        "dptLightBlink": "",
+        "nameLightColorCycle": "",
+        "GALightColorCycle": "",
+        "dptLightColorCycle": "",
+        "nameLightEffect": "",
+        "GALightEffect": "",
+        "dptLightEffect": "",
+        "nameLightEffectStatus": "",
+        "GALightEffectStatus": "",
+        "dptLightEffectStatus": "",
+        "effectRules": [],
+        "nameDaylightSensor": "",
+        "GADaylightSensor": "",
+        "dptDaylightSensor": "",
+        "specifySwitchOnBrightness": "temperature",
+        "colorAtSwitchOnDayTime": "{\"kelvin\":3000, \"brightness\":100 }",
+        "enableDayNightLighting": "no",
+        "colorAtSwitchOnNightTime": "{ \"kelvin\":2700, \"brightness\":20 }",
+        "invertDayNight": false,
+        "invertDimTunableWhiteDirection": false,
+        "updateKNXBrightnessStatusOnHUEOnOff": "no",
+        "dimSpeed": 5000,
+        "HSVDimSpeed": 5000,
+        "minDimLevelLight": 10,
+        "maxDimLevelLight": 100,
+        "readStatusAtStartup": "yes",
+        "enableNodePINS": "yes",
+        "outputs": 1,
+        "inputs": 1,
+        "hueDevice": "b2482e64-c5aa-4302-abc1-5a554a1b4057#light",
+        "hueDeviceObject": {
+            "id": "b2482e64-c5aa-4302-abc1-5a554a1b4057",
+            "id_v1": "/lights/5",
+            "owner": {
+                "rid": "17ab347f-0f74-4388-9349-6fee6d64292f",
+                "rtype": "device"
+            },
+            "metadata": {
+                "name": "Sala Tecnica Demo",
+                "archetype": "table_shade",
+                "function": "mixed"
+            },
+            "product_data": {
+                "function": "mixed"
+            },
+            "identify": {},
+            "service_id": 0,
+            "on": {
+                "on": true
+            },
+            "dimming": {
+                "brightness": 62.45,
+                "min_dim_level": 2
+            },
+            "dimming_delta": {},
+            "color_temperature": {
+                "mirek": null,
+                "mirek_valid": false,
+                "mirek_schema": {
+                    "mirek_minimum": 153,
+                    "mirek_maximum": 500
+                }
+            },
+            "color_temperature_delta": {},
+            "color": {
+                "xy": {
+                    "x": 0.2868,
+                    "y": 0.2767
+                },
+                "gamut": {
+                    "red": {
+                        "x": 0.675,
+                        "y": 0.322
+                    },
+                    "green": {
+                        "x": 0.409,
+                        "y": 0.518
+                    },
+                    "blue": {
+                        "x": 0.167,
+                        "y": 0.04
+                    }
+                },
+                "gamut_type": "B"
+            },
+            "dynamics": {
+                "status": "none",
+                "status_values": [
+                    "none",
+                    "dynamic_palette"
+                ],
+                "speed": 0,
+                "speed_valid": false
+            },
+            "alert": {
+                "action_values": [
+                    "breathe"
+                ]
+            },
+            "signaling": {
+                "signal_values": [
+                    "no_signal",
+                    "on_off"
+                ]
+            },
+            "mode": "normal",
+            "powerup": {
+                "preset": "powerfail",
+                "configured": true,
+                "on": {
+                    "mode": "previous"
+                },
+                "dimming": {
+                    "mode": "previous"
+                },
+                "color": {
+                    "mode": "previous"
+                }
+            },
+            "type": "light"
+        },
+        "restoreDayMode": "no",
+        "updateLocalStateFromKNXWrite": true,
+        "x": 420,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dacd0cbad95e8d8e",
+        "type": "function",
+        "z": "f1demo01midi2knx",
+        "name": "function 2",
+        "func": "msg = { \"dimming\": { \"brightness\": msg.payload } };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 160,
+        "y": 240,
+        "wires": [
+            [
+                "10f66f1c924119e6"
+            ]
+        ]
+    },
+    {
+        "id": "8d7f5d6594400929",
+        "type": "function",
+        "z": "e8e18da283ed4928",
+        "name": "0–100% → Fader CC",
+        "func": "// === CONFIG (deve combaciare col ramo di andata) ===\nconst FADER_CC     = 4;   // STESSO CC del fader usato in andata\nconst MIDI_CHANNEL = 1;   // canale MIDI della X-Touch (Standard mode = 1)\n// ===================================================\n\nlet pct = Number(msg.payload);\nif (Number.isNaN(pct)) {\n    return null;\n}\npct = Math.max(0, Math.min(100, pct));\n\n// Scala KNX 0..100 %  ->  MIDI 0..127\nconst value = Math.round(pct / 100 * 127);\n\nnode.status({ fill: \"blue\", shape: \"dot\", text: pct + \" % → CC \" + FADER_CC + \"=\" + value });\n\n// Il nodo 'midi out' costruisce i byte da msg.midi\nmsg.midi = {\n    type: \"controlchange\",\n    channel: MIDI_CHANNEL,\n    data: [FADER_CC, value]\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 100,
+        "wires": [
+            [
+                "a9c4614d3323a7e6"
+            ]
+        ]
+    },
+    {
+        "id": "a9c4614d3323a7e6",
+        "type": "midi out",
+        "z": "e8e18da283ed4928",
+        "name": "X-Touch (fader motore)",
+        "midiport": "2",
+        "x": 520,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "947d150e6732ea63",
+        "type": "knxUltimateHueLight",
+        "z": "e8e18da283ed4928",
+        "server": "",
+        "serverHue": "c525a8034818b797",
+        "name": "Light: Sala Tecnica Demo (Device:table_shade)",
+        "nameLightSwitch": "",
+        "GALightSwitch": "",
+        "dptLightSwitch": "",
+        "nameLightState": "",
+        "GALightState": "",
+        "dptLightState": "",
+        "nameLightDIM": "",
+        "GALightDIM": "",
+        "dptLightDIM": "",
+        "nameLightColor": "",
+        "GALightColor": "",
+        "dptLightColor": "",
+        "nameLightColorState": "",
+        "GALightColorState": "",
+        "dptLightColorState": "",
+        "nameLightHSV_H_DIM": "",
+        "GALightHSV_H_DIM": "",
+        "dptLightHSV_H_DIM": "",
+        "nameLightHSV_H_State": "",
+        "GALightHSV_H_State": "",
+        "dptLightHSV_H_State": "",
+        "nameLightHSV_S_DIM": "",
+        "GALightHSV_S_DIM": "",
+        "dptLightHSV_S_DIM": "",
+        "nameLightHSV_S_State": "",
+        "GALightHSV_S_State": "",
+        "dptLightHSV_S_State": "",
+        "nameLightKelvinDIM": "",
+        "GALightKelvinDIM": "",
+        "dptLightKelvinDIM": "",
+        "nameLightKelvinPercentage": "",
+        "GALightKelvinPercentage": "",
+        "dptLightKelvinPercentage": "",
+        "nameLightKelvinPercentageState": "",
+        "GALightKelvinPercentageState": "",
+        "dptLightKelvinPercentageState": "",
+        "nameLightKelvin": "",
+        "GALightKelvin": "",
+        "dptLightKelvin": "",
+        "nameLightKelvinState": "",
+        "GALightKelvinState": "",
+        "dptLightKelvinState": "",
+        "nameLightBrightness": "",
+        "GALightBrightness": "",
+        "dptLightBrightness": "",
+        "nameLightBrightnessState": "",
+        "GALightBrightnessState": "",
+        "dptLightBrightnessState": "",
+        "nameLightBlink": "",
+        "GALightBlink": "",
+        "dptLightBlink": "",
+        "nameLightColorCycle": "",
+        "GALightColorCycle": "",
+        "dptLightColorCycle": "",
+        "nameLightEffect": "",
+        "GALightEffect": "",
+        "dptLightEffect": "",
+        "nameLightEffectStatus": "",
+        "GALightEffectStatus": "",
+        "dptLightEffectStatus": "",
+        "effectRules": "[]",
+        "nameDaylightSensor": "",
+        "GADaylightSensor": "",
+        "dptDaylightSensor": "",
+        "specifySwitchOnBrightness": "temperature",
+        "colorAtSwitchOnDayTime": "{\"kelvin\":3000, \"brightness\":100 }",
+        "enableDayNightLighting": "no",
+        "colorAtSwitchOnNightTime": "{ \"kelvin\":2700, \"brightness\":20 }",
+        "invertDayNight": false,
+        "invertDimTunableWhiteDirection": false,
+        "updateKNXBrightnessStatusOnHUEOnOff": "no",
+        "dimSpeed": 5000,
+        "HSVDimSpeed": 5000,
+        "minDimLevelLight": 10,
+        "maxDimLevelLight": 100,
+        "readStatusAtStartup": "yes",
+        "enableNodePINS": "yes",
+        "outputs": 1,
+        "inputs": 1,
+        "hueDevice": "b2482e64-c5aa-4302-abc1-5a554a1b4057#light",
+        "hueDeviceObject": {
+            "id": "b2482e64-c5aa-4302-abc1-5a554a1b4057",
+            "id_v1": "/lights/5",
+            "owner": {
+                "rid": "17ab347f-0f74-4388-9349-6fee6d64292f",
+                "rtype": "device"
+            },
+            "metadata": {
+                "name": "Sala Tecnica Demo",
+                "archetype": "table_shade",
+                "function": "mixed"
+            },
+            "product_data": {
+                "function": "mixed"
+            },
+            "identify": {},
+            "service_id": 0,
+            "on": {
+                "on": true
+            },
+            "dimming": {
+                "brightness": 62.45,
+                "min_dim_level": 2
+            },
+            "dimming_delta": {},
+            "color_temperature": {
+                "mirek": null,
+                "mirek_valid": false,
+                "mirek_schema": {
+                    "mirek_minimum": 153,
+                    "mirek_maximum": 500
+                }
+            },
+            "color_temperature_delta": {},
+            "color": {
+                "xy": {
+                    "x": 0.2868,
+                    "y": 0.2767
+                },
+                "gamut": {
+                    "red": {
+                        "x": 0.675,
+                        "y": 0.322
+                    },
+                    "green": {
+                        "x": 0.409,
+                        "y": 0.518
+                    },
+                    "blue": {
+                        "x": 0.167,
+                        "y": 0.04
+                    }
+                },
+                "gamut_type": "B"
+            },
+            "dynamics": {
+                "status": "none",
+                "status_values": [
+                    "none",
+                    "dynamic_palette"
+                ],
+                "speed": 0,
+                "speed_valid": false
+            },
+            "alert": {
+                "action_values": [
+                    "breathe"
+                ]
+            },
+            "signaling": {
+                "signal_values": [
+                    "no_signal",
+                    "on_off"
+                ]
+            },
+            "mode": "normal",
+            "powerup": {
+                "preset": "powerfail",
+                "configured": true,
+                "on": {
+                    "mode": "previous"
+                },
+                "dimming": {
+                    "mode": "previous"
+                },
+                "color": {
+                    "mode": "previous"
+                }
+            },
+            "type": "light"
+        },
+        "restoreDayMode": "no",
+        "updateLocalStateFromKNXWrite": true,
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "717d0b8417e86e39"
+            ]
+        ]
+    },
+    {
+        "id": "717d0b8417e86e39",
+        "type": "function",
+        "z": "e8e18da283ed4928",
+        "name": "function 3",
+        "func": "msg.payload = msg.dimming.brightness;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 100,
+        "wires": [
+            [
+                "8d7f5d6594400929"
+            ]
+        ]
+    },
+    {
+        "id": "849ab024a29f7055",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-knx-ultimate": "4.3.23",
+            "node-red-contrib-midi": "1.1.2",
+            "node-red-contrib-boolean-logic-ultimate": "1.2.14"
+        }
+    }
+]
